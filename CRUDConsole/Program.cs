@@ -2,6 +2,7 @@
 using CRUDConsole.Models;
 using CRUDConsole.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace Program;
 
@@ -14,7 +15,27 @@ class TestClass
         var context = new Context(optionsBuilder.Options);
 
         var cControler = new CategoriaRepositories(context);
-        /*
+
+        Console.WriteLine("Lista atual de categorias: ");
+        var cListaInicial = await cControler.BuscarTodos();
+        foreach (var item in cListaInicial)
+        {
+            Console.WriteLine(item);
+        }
+
+        var pControler = new ProdutoRepositories(context);
+
+        Console.WriteLine();
+        Console.WriteLine("Lista atual de produtos: ");
+        var pListaInicial = await pControler.BuscarTodos();
+        foreach (var item in pListaInicial)
+        {
+            Console.WriteLine(item);
+            Console.Write("Categoria: ");
+            Console.WriteLine(await cControler.BuscarPorId(item.CategoriaId));
+            Console.WriteLine();
+        }
+
         Console.WriteLine("Digite a quantidade de categorias que irá registrar: ");
         var indicador = int.Parse(Console.ReadLine());
 
@@ -73,18 +94,14 @@ class TestClass
             await cControler.Remover(int.Parse(Console.ReadLine()));
         }
 
-        var pControler = new ProdutoRepositories(context);
-
         int acao = 10;
-
-        int contador = 1;
 
         while (acao != 0)
         {
             Console.WriteLine();
             Console.WriteLine("Digite 1 para adicionar um produto, 2 para ver um produto,");
-            Console.WriteLine("Digite 3 para ver todos produtos, 4 para editar um produto,");
-            Console.WriteLine("Digite 5 para remover um produto e 0 para sair");
+            Console.WriteLine("3 para ver todos os produtos, 4 para editar um produto,");
+            Console.WriteLine("5 para remover um produto e 0 para sair");
             Console.WriteLine();
 
             Console.WriteLine("Categorias disponíveis: ");
@@ -105,18 +122,20 @@ class TestClass
                 string nome = Console.ReadLine();
 
                 Console.WriteLine("Digite o preco:");
-                double preco = double.Parse(Console.ReadLine());
+                double preco = double.Parse(Console.ReadLine(),CultureInfo.InvariantCulture);
 
-                Console.WriteLine("Digite o id da categoria:");
-                int categoria = int.Parse(Console.ReadLine());
 
                 Console.WriteLine("Digite a quantidade:");
                 int quantidade = int.Parse(Console.ReadLine());
 
                 if (acao == 1)
                 {
-                    Produto produto = new Produto(contador, nome, preco, categoria, quantidade);
-                    contador++;
+                    Console.WriteLine("Digite o id da categoria:");
+                    int idCategoria = int.Parse(Console.ReadLine());
+
+                    Produto produto = new Produto(nome, preco, quantidade);
+
+                    produto.Categoria = await cControler.BuscarPorId(idCategoria);
 
                     await pControler.Adicionar(produto);
 
@@ -127,7 +146,20 @@ class TestClass
                     Console.WriteLine("Digite o id do produto que quer alterar:");
                     int id = int.Parse(Console.ReadLine());
 
-                    Produto produto = new Produto(contador, nome, preco, categoria, quantidade);
+                    Produto produto = new Produto(nome, preco, quantidade);
+
+                    Console.WriteLine("Irá alterar a categoria? S/N");
+                    char decisao = char.Parse(Console.ReadLine());
+
+                    if (decisao == 'S')
+                    {
+                        Console.WriteLine("Digite a nova categoria:");
+                        int idCategoria = int.Parse(Console.ReadLine());
+
+                        produto.Categoria = await cControler.BuscarPorId(idCategoria);
+                    }
+                    else
+                        produto.Categoria = null;
 
                     await pControler.Atualizar(produto, id);
 
@@ -165,6 +197,6 @@ class TestClass
                     Console.WriteLine();
                 }
             }
-        }*/
+        }
     }
 }

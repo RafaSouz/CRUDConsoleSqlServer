@@ -25,37 +25,41 @@ public class ProdutoRepositories : IProdutoRepositories
         return await _context.Produtos.ToListAsync();
     }
 
-    public async Task<bool> Adicionar(Produto novo)
+    public async Task<bool> Adicionar(Produto model)
     {
-        await _context.Produtos.AddAsync(novo);
+        await _context.Produtos.AddAsync(model);
         await _context.SaveChangesAsync();
 
         return true;
     }
 
-    public async Task<Produto> Atualizar(Produto ajuste, int id)
+    public async Task<Produto> Atualizar(Produto model, int id)
     {
-        Produto prod = await BuscarPorId(id);
+        Produto produto = await BuscarPorId(id);
 
-        prod.Preco = ajuste.Preco;
-        prod.Nome = ajuste.Nome;
-        prod.Quantidade = ajuste.Quantidade;
-        prod.Categoria = ajuste.Categoria;
+        produto.Preco = model.Preco;
+        produto.Nome = model.Nome;
+        produto.Quantidade = model.Quantidade;
+
+        if(model.Categoria != null)
+        {
+            produto.Categoria = model.Categoria;
+        }
 
         await _context.SaveChangesAsync();
 
-        return ajuste;
+        return model;
     }
     public async Task<bool> Remover(int id)
     {
-        Produto prod = await BuscarPorId(id);
+        Produto model = await BuscarPorId(id);
 
-        if (prod == null)
+        if (model == null)
         {
             throw new Exception("Não existe produto com esse id");
         }
 
-        _context.Produtos.Remove(prod);
+        _context.Produtos.Remove(model);
         await _context.SaveChangesAsync();
 
         return true;

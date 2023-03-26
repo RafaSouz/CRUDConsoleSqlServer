@@ -24,12 +24,10 @@ public class Produto
     {
     }    
 
-    public Produto(int id, string nome, double preco, int categoria, int quantidade) 
+    public Produto(string nome, double preco, int quantidade) 
     {
-        Id = id;
         Nome = nome;    
         Preco = preco;
-        CategoriaId = categoria;
         Quantidade = quantidade;
 
     }
